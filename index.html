@@ -132,6 +132,31 @@
   .pm-cta:hover{filter:brightness(1.05)} .pm-cta:active{transform:translateY(1px)}
   .pm-cta.up{background:var(--green);color:var(--green-ink)}
   .pm-cta.dn{background:var(--red);color:#fff}
+  .pm-cta.off{background:#e7e4de;color:#9aa0a8;cursor:not-allowed}
+  .pm-cta.off:hover{filter:none}
+  .pm-amount input.low{color:var(--ink3)}
+
+  /* mode toggle (Custom / Quick) — integrated from v1 */
+  .ec-modes{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .ec-modelab{font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--ink3);text-transform:uppercase}
+  .seg{display:inline-flex;background:var(--soft);border:1px solid var(--hairline);border-radius:999px;padding:3px}
+  .seg button{border:0;background:none;color:var(--ink2);font-family:var(--font);font-size:12px;font-weight:700;padding:6px 15px;border-radius:999px;cursor:pointer;transition:.12s}
+  .seg button:hover{color:var(--ink)}
+  .seg button.on{background:var(--white);color:var(--ink);box-shadow:0 1px 2px rgba(17,17,20,.08)}
+
+  /* quick presets */
+  .ec-qlabel{font-size:12px;font-weight:600;color:var(--ink2);margin:18px 0 10px}
+  .ec-presets{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .qp{display:flex;flex-direction:column;align-items:center;gap:4px;padding:15px 0;border-radius:14px;border:1px solid var(--hairline);background:var(--soft);cursor:pointer;font-family:var(--font);transition:.12s}
+  .qp .qa{font-size:21px;font-weight:800;color:var(--ink);letter-spacing:-.3px}
+  .qp .qa i{font-size:12px;font-weight:700;color:var(--ink3);font-style:normal;margin-left:3px}
+  .qp .qw{font-size:11px;font-weight:700}
+  #modeQuick.dir-up .qp .qw{color:var(--green-deep)} #modeQuick.dir-down .qp .qw{color:var(--red)}
+  #modeQuick.dir-up .qp:hover{border-color:var(--green);background:#fff;box-shadow:0 0 0 1px rgba(34,197,94,.25)}
+  #modeQuick.dir-down .qp:hover{border-color:var(--red);background:#fff;box-shadow:0 0 0 1px rgba(239,68,68,.25)}
+  #modeQuick.dir-up .qp.sel{border-color:var(--green);background:rgba(34,197,94,.12)}
+  #modeQuick.dir-down .qp.sel{border-color:var(--red);background:rgba(239,68,68,.12)}
+  .ec-qnote{font-size:10px;color:var(--ink3);text-align:center;margin-top:11px}
 
   /* ----- footer ----- */
   footer.app{height:60px;flex:none;display:flex;align-items:center;justify-content:flex-end;gap:6px;padding:0 32px;margin-top:auto}
@@ -269,11 +294,23 @@
 
         <hr class="ec-rule" />
 
-        <!-- direction -->
+        <!-- mode toggle (integrated from v1) -->
+        <div class="ec-modes">
+          <span class="ec-modelab">Enter</span>
+          <div class="seg" role="tablist">
+            <button class="on" type="button" data-mode="custom">Custom</button>
+            <button type="button" data-mode="quick">Quick</button>
+          </div>
+        </div>
+
+        <!-- direction (shared by both modes) -->
         <div class="ec-outcomes">
           <button class="oc up sel" type="button" data-dir="up"><span class="oc-l">↑ UP</span><span class="oc-x">1.72×</span></button>
           <button class="oc dn" type="button" data-dir="down"><span class="oc-l">↓ DOWN</span><span class="oc-x">2.38×</span></button>
         </div>
+
+        <!-- CUSTOM mode -->
+        <div id="modeCustom">
 
         <!-- amount — big, click to type -->
         <div class="pm-amount">
@@ -300,6 +337,19 @@
         <!-- enter -->
         <button class="pm-cta up" id="ctaBtn" type="button">Enter</button>
 
+        </div><!-- /modeCustom -->
+
+        <!-- QUICK mode (integrated from v1) -->
+        <div id="modeQuick" class="dir-up" hidden>
+          <div class="ec-qlabel">Quick enter</div>
+          <div class="ec-presets">
+            <button class="qp" type="button" data-amt="60"><span class="qa">60<i>CHZ</i></span><span class="qw">win 103 CHZ</span></button>
+            <button class="qp" type="button" data-amt="300"><span class="qa">300<i>CHZ</i></span><span class="qw">win 516 CHZ</span></button>
+            <button class="qp" type="button" data-amt="1200"><span class="qa">1,200<i>CHZ</i></span><span class="qw">win 2,064 CHZ</span></button>
+          </div>
+          <div class="ec-qnote">Multiplier finalizes when round locks</div>
+        </div>
+
       </div>
 
     </aside>
@@ -318,7 +368,7 @@
 /* ENTER card v2 — Polymarket "Amount → To win → Enter". Type amount → To win recalculates. Deep-link: ?v=down */
 (function(){
   const MULT={up:1.72,down:2.38}, BALANCE=1250, CHZ_USD=0.0831, MIN=30;
-  let amount=30, dir='up', revealed=false;
+  let amount=30, dir='up', revealed=false, mode='custom', quickSel=null;
   const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
   const fmt=n=>n.toLocaleString('en-US');
 
@@ -327,7 +377,16 @@
     $('#pmWin').textContent=fmt(Math.round(amount*MULT[dir]))+' CHZ';
     $('#pmMeta').innerHTML=(amount<MIN?'<span class="pm-min">Min '+MIN+' CHZ</span> · ':'')+'~$'+(amount*CHZ_USD).toFixed(2)+' · Balance '+fmt(BALANCE)+' CHZ';
     $('#pmReveal').hidden = !(revealed && amount>0);
-    $('#ctaBtn').className='pm-cta '+(dir==='up'?'up':'dn');
+    const low = amount<MIN;
+    $('#amt').classList.toggle('low', low);
+    $('#ctaBtn').className='pm-cta '+(dir==='up'?'up':'dn')+(low?' off':'');
+    $('#modeQuick').className=(dir==='up'?'dir-up':'dir-down');
+    $$('.qp').forEach(b=>{ const a=parseInt(b.dataset.amt,10); b.classList.toggle('sel', a===quickSel); b.querySelector('.qw').textContent='win '+fmt(Math.round(a*MULT[dir]))+' CHZ'; });
+  }
+  function setMode(m){
+    mode=m;
+    $$('.seg button').forEach(b=>b.classList.toggle('on',b.dataset.mode===m));
+    $('#modeCustom').hidden=m!=='custom'; $('#modeQuick').hidden=m!=='quick';
   }
   function setAmount(v, fromInput){
     amount=Math.max(0,Math.min(BALANCE,Math.floor(v||0)));
@@ -339,10 +398,13 @@
   $$('[data-max]').forEach(b=>b.addEventListener('click',()=>setAmount(BALANCE)));
   $('#amt').addEventListener('input',e=>setAmount(parseInt(e.target.value.replace(/[^0-9]/g,''),10), true));
   $('#amt').addEventListener('focus',()=>{ revealed=true; render(); });  // press amount → reveal (hidden again if amount hits 0)
+  $$('[data-mode]').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));
+  $$('.qp').forEach(b=>b.addEventListener('click',()=>{ const a=parseInt(b.dataset.amt,10); quickSel=a; amount=a; render(); }));
 
   const qp=new URLSearchParams(location.search);
   if(qp.get('v')==='down') dir='down';
   if(qp.get('v')==='reveal') revealed=true;
+  if(qp.get('v')==='quick') setMode('quick');
   render();
 })();
 </script>
