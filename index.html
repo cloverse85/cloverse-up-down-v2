@@ -118,11 +118,13 @@
   .pm-chips button{border:1px solid var(--hairline);background:var(--soft);color:var(--ink2);font-family:var(--font);font-size:13px;font-weight:700;padding:7px 14px;border-radius:9px;cursor:pointer;transition:.12s}
   .pm-chips button:hover{background:#efece4;color:var(--ink)}
 
-  /* to win */
-  .pm-towin{display:flex;align-items:center;justify-content:space-between}
-  .pm-tw-lab{font-size:16px;font-weight:700;color:var(--ink)}
-  .pm-tw-sub{font-size:11px;color:var(--ink3);margin-top:3px}
-  .pm-tw-val{font-size:32px;font-weight:800;color:var(--green);letter-spacing:-.5px}
+  /* payout + meta — revealed on amount focus (Cloverse style, not Polymarket) */
+  [hidden]{display:none!important}
+  .pm-payout{display:flex;align-items:center;justify-content:space-between;background:var(--soft);border-radius:12px;padding:13px 15px}
+  .pm-pay-lab{font-size:13px;font-weight:700;color:var(--ink)}
+  .pm-pay-sub{font-size:11px;color:var(--ink3);margin-top:3px}
+  .pm-pay-val{font-size:22px;font-weight:800;color:var(--green-deep);letter-spacing:-.3px}
+  .pm-meta{text-align:right;font-size:12px;font-weight:600;color:var(--ink3);margin-top:11px}
 
   /* enter button */
   .pm-cta{width:100%;margin-top:18px;border:0;border-radius:999px;padding:16px 0;font-family:var(--font);font-size:17px;font-weight:800;letter-spacing:-.2px;cursor:pointer;transition:filter .15s,transform .05s}
@@ -282,15 +284,17 @@
           <button type="button" data-add="100">+100</button><button type="button" data-max>Max</button>
         </div>
 
-        <hr class="ec-rule" />
-
-        <!-- to win (recalculates from amount) -->
-        <div class="pm-towin">
-          <div>
-            <div class="pm-tw-lab">To win 💵</div>
-            <div class="pm-tw-sub">Multiplier <span id="pmMult">1.72×</span> · finalizes at lock</div>
+        <!-- payout + min/balance — revealed only when the amount input is pressed -->
+        <div class="pm-reveal" id="pmReveal" hidden>
+          <hr class="ec-rule" />
+          <div class="pm-payout">
+            <div>
+              <div class="pm-pay-lab">Est. payout</div>
+              <div class="pm-pay-sub">Multiplier <span id="pmMult">1.72×</span> · finalizes at lock</div>
+            </div>
+            <div class="pm-pay-val" id="pmWin">172 CHZ</div>
           </div>
-          <div class="pm-tw-val" id="pmWin">172 CHZ</div>
+          <div class="pm-meta" id="pmMeta">~$8.31 · Min 30 CHZ · Balance 1,250 CHZ</div>
         </div>
 
         <!-- enter -->
@@ -313,7 +317,7 @@
 <script>
 /* ENTER card v2 — Polymarket "Amount → To win → Enter". Type amount → To win recalculates. Deep-link: ?v=down */
 (function(){
-  const MULT={up:1.72,down:2.38}, BALANCE=1250;
+  const MULT={up:1.72,down:2.38}, BALANCE=1250, CHZ_USD=0.0831, MIN=30;
   let amount=100, dir='up';
   const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
   const fmt=n=>n.toLocaleString('en-US');
@@ -322,6 +326,7 @@
     $$('.oc').forEach(b=>b.classList.toggle('sel', b.dataset.dir===dir));
     $('#pmWin').textContent=fmt(Math.round(amount*MULT[dir]))+' CHZ';
     $('#pmMult').textContent=MULT[dir].toFixed(2)+'×';
+    $('#pmMeta').textContent='~$'+(amount*CHZ_USD).toFixed(2)+' · Min '+MIN+' CHZ · Balance '+fmt(BALANCE)+' CHZ';
     $('#ctaBtn').className='pm-cta '+(dir==='up'?'up':'dn');
   }
   function setAmount(v, fromInput){
@@ -333,8 +338,11 @@
   $$('[data-add]').forEach(b=>b.addEventListener('click',()=>setAmount(amount+parseInt(b.dataset.add,10))));
   $$('[data-max]').forEach(b=>b.addEventListener('click',()=>setAmount(BALANCE)));
   $('#amt').addEventListener('input',e=>setAmount(parseInt(e.target.value.replace(/[^0-9]/g,''),10), true));
+  $('#amt').addEventListener('focus',()=>{ $('#pmReveal').hidden=false; });  // press amount → reveal payout + min/balance
 
-  if(new URLSearchParams(location.search).get('v')==='down') dir='down';
+  const qp=new URLSearchParams(location.search);
+  if(qp.get('v')==='down') dir='down';
+  if(qp.get('v')==='reveal') $('#pmReveal').hidden=false;
   render();
 })();
 </script>
