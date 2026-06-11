@@ -125,6 +125,7 @@
   .pm-pay-lab{font-size:13px;font-weight:700;color:var(--ink)}
   .pm-pay-val{font-size:22px;font-weight:800;color:var(--green-deep);letter-spacing:-.3px}
   .pm-meta{font-size:11px;font-weight:600;color:var(--ink3);margin-top:6px}
+  .pm-meta .pm-min{color:var(--red);font-weight:700}
 
   /* enter button */
   .pm-cta{width:100%;margin-top:18px;border:0;border-radius:999px;padding:16px 0;font-family:var(--font);font-size:17px;font-weight:800;letter-spacing:-.2px;cursor:pointer;transition:filter .15s,transform .05s}
@@ -277,7 +278,7 @@
         <!-- amount — big, click to type -->
         <div class="pm-amount">
           <span class="pm-lab">Amount</span>
-          <span class="pm-val"><input id="amt" type="text" value="100" inputmode="numeric" aria-label="Amount in CHZ" /><span class="pm-unit">CHZ</span></span>
+          <span class="pm-val"><input id="amt" type="text" value="30" inputmode="numeric" aria-label="Amount in CHZ" /><span class="pm-unit">CHZ</span></span>
         </div>
         <div class="pm-chips">
           <button type="button" data-add="10">+10</button><button type="button" data-add="50">+50</button>
@@ -317,14 +318,14 @@
 /* ENTER card v2 — Polymarket "Amount → To win → Enter". Type amount → To win recalculates. Deep-link: ?v=down */
 (function(){
   const MULT={up:1.72,down:2.38}, BALANCE=1250, CHZ_USD=0.0831, MIN=30;
-  let amount=100, dir='up', revealed=false;
+  let amount=30, dir='up', revealed=false;
   const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
   const fmt=n=>n.toLocaleString('en-US');
 
   function render(){
     $$('.oc').forEach(b=>b.classList.toggle('sel', b.dataset.dir===dir));
     $('#pmWin').textContent=fmt(Math.round(amount*MULT[dir]))+' CHZ';
-    $('#pmMeta').textContent='~$'+(amount*CHZ_USD).toFixed(2)+' · Min '+MIN+' CHZ · Balance '+fmt(BALANCE)+' CHZ';
+    $('#pmMeta').innerHTML=(amount<MIN?'<span class="pm-min">Min '+MIN+' CHZ</span> · ':'')+'~$'+(amount*CHZ_USD).toFixed(2)+' · Balance '+fmt(BALANCE)+' CHZ';
     $('#pmReveal').hidden = !(revealed && amount>0);
     $('#ctaBtn').className='pm-cta '+(dir==='up'?'up':'dn');
   }
