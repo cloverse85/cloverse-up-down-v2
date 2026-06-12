@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Cloverse — Up &amp; Down Leaderboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  /* ----- design tokens (light — matches live cloverse.org) ----- */
+  :root{
+    --cream:#f4f1eb; --white:#ffffff;
+    --ink:#15161a; --ink2:#6b7280; --ink3:#9aa0a8;
+    --hairline:#eceae4; --soft:#f6f4ef;
+    --green:#22c55e; --green-deep:#16a34a; --green-ink:#04230f;
+    --red:#ef4444; --brand:#ff3b47;
+    --radius-card:24px; --radius-card-sm:20px; --radius-md:10px;
+    --shadow:0 1px 2px rgba(17,17,20,.04), 0 10px 30px rgba(17,17,20,.05);
+    --font:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *,*::before,*::after{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:var(--cream);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.4;
+    -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+  .frame{max-width:1440px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
+
+  /* ----- header (full-width, like live) ----- */
+  header.app{height:88px;flex:none;display:flex;align-items:center;justify-content:space-between;
+    padding:0 32px;background:var(--white);border-bottom:1px solid var(--hairline)}
+  .brand{display:flex;align-items:center;gap:48px}
+  .logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+  .logo .name{font-size:22px;font-weight:800;letter-spacing:-.4px;color:var(--ink)}
+  nav.primary{display:flex;align-items:center;gap:28px}
+  nav.primary a{position:relative;text-decoration:none;font-size:15px;font-weight:500;color:var(--ink2);padding:6px 0;transition:color .15s}
+  nav.primary a:hover{color:var(--ink)}
+  nav.primary a.active{color:var(--ink);font-weight:600}
+  nav.primary a.active::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:2px;border-radius:99px;background:var(--brand)}
+  .wallet{display:flex;align-items:center;gap:10px;height:44px;padding:6px 14px 6px 6px;background:var(--white);
+    border:1px solid var(--hairline);border-radius:999px;cursor:pointer;transition:border-color .15s}
+  .wallet:hover{border-color:#dcd8cf}
+  .coin{width:32px;height:32px;border-radius:999px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#ff4d8d,#e62934)}
+  .wallet .bal{font-size:15px;font-weight:600;color:var(--ink)}
+  .chev{color:var(--ink3)}
+
+  /* ----- shared primitives ----- */
+  .card{background:var(--white);border:1px solid var(--hairline);border-radius:var(--radius-card-sm);box-shadow:var(--shadow)}
+  .card-lg{border-radius:var(--radius-card);padding:24px}
+  .card-pad{padding:18px}
+  h1.title{margin:0;font-size:32px;font-weight:800;letter-spacing:-.6px;color:var(--ink)}
+  .subtitle{margin:6px 0 0;font-size:13px;color:var(--ink3)}
+  .cap{font-size:11px;font-weight:600;letter-spacing:.5px;color:var(--ink3)}
+  .side-h{font-size:12px;font-weight:800;letter-spacing:.4px;color:var(--ink3);text-transform:uppercase;margin-bottom:13px}
+
+  /* ===== LEADERBOARD ===== */
+  main.lb{display:flex;flex-direction:column;gap:16px;padding:20px 32px 28px}
+
+  /* hero */
+  .lb-hero.card-lg{padding:26px 28px}
+  .lb-hero-top{display:flex;align-items:flex-start;justify-content:space-between;gap:24px}
+  .lb-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,59,71,.08);color:var(--brand);
+    font-size:11px;font-weight:800;letter-spacing:.6px;padding:5px 11px;border-radius:999px;margin-bottom:13px}
+  .lb-hero h1.title{font-size:34px}
+  .lb-hero .subtitle{font-size:14px;color:var(--ink2);max-width:560px;margin-top:9px;line-height:1.55}
+  .lb-cd{flex:none;text-align:right;background:var(--soft);border:1px solid var(--hairline);border-radius:16px;padding:14px 18px;min-width:230px}
+  .lb-cd .cap{display:flex;align-items:center;justify-content:flex-end;gap:6px}
+  .lb-cd .dot{width:7px;height:7px;border-radius:99px;background:var(--red);display:inline-block;animation:blink 1.4s infinite}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+  .lb-cd-time{font-size:25px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:-.5px;margin-top:5px}
+  .lb-cd-sub{font-size:12px;color:var(--ink3);font-weight:600;margin-top:5px}
+
+  .lb-stats{display:flex;margin-top:22px;border:1px solid var(--hairline);border-radius:16px;overflow:hidden;background:var(--soft)}
+  .lb-stat{flex:1;padding:14px 18px;border-right:1px solid var(--hairline)}
+  .lb-stat:last-child{border-right:0}
+  .ls-v{font-size:20px;font-weight:800;color:var(--ink);letter-spacing:-.3px}
+  .ls-v .coinmark{color:var(--ink3);font-size:13px;font-weight:700;margin-left:3px}
+  .ls-k{font-size:11px;font-weight:600;color:var(--ink3);margin-top:4px;text-transform:uppercase;letter-spacing:.4px}
+
+  .lb-progress{display:flex;align-items:center;gap:14px;margin-top:18px}
+  .lb-progress .pl{font-size:12px;font-weight:700;color:var(--ink2);white-space:nowrap}
+  .lb-progress .pl.r{color:var(--ink3);font-weight:600}
+  .lb-bar{flex:1;height:7px;border-radius:99px;background:#eceae4;overflow:hidden}
+  .lb-bar>span{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--green-deep));border-radius:99px}
+
+  /* podium (top 3) */
+  .lb-podium{display:grid;grid-template-columns:1fr 1.1fr 1fr;gap:14px;align-items:end}
+  .pod{position:relative;background:var(--white);border:1px solid var(--hairline);border-radius:22px;box-shadow:var(--shadow);padding:22px 16px;text-align:center}
+  .pod.first{padding-top:30px;padding-bottom:28px;border-color:#f1d989;box-shadow:0 1px 2px rgba(17,17,20,.05),0 18px 44px rgba(243,177,0,.18)}
+  .pod-crown{display:block;margin:0 auto 6px}
+  .pod-ranklab{font-size:11px;font-weight:800;letter-spacing:.7px;margin-bottom:10px}
+  .pod-ranklab.gold{color:#bb8800} .pod-ranklab.silver{color:#8b95a3} .pod-ranklab.bronze{color:#a9683a}
+  .pod-medal{display:flex;align-items:center;justify-content:center;font-weight:800;width:66px;height:66px;border-radius:999px;font-size:27px;margin:0 auto 14px}
+  .pod.first .pod-medal{width:78px;height:78px;font-size:31px}
+  .pod-medal.gold{background:linear-gradient(140deg,#fde79a,#f3b100);color:#6b4e00;box-shadow:0 8px 22px rgba(243,177,0,.32)}
+  .pod-medal.silver{background:linear-gradient(140deg,#eef1f5,#b9bfc9);color:#4a525e;box-shadow:0 8px 20px rgba(160,167,180,.3)}
+  .pod-medal.bronze{background:linear-gradient(140deg,#eccaa6,#c07f49);color:#5a3415;box-shadow:0 8px 20px rgba(192,127,73,.3)}
+  .pod-addr{font-size:15px;font-weight:800;color:var(--ink);letter-spacing:.2px}
+  .pod-entries{margin-top:7px;font-size:13px;color:var(--ink3);font-weight:600}
+  .pod-entries b{font-size:24px;font-weight:800;color:var(--ink);letter-spacing:-.4px;margin-right:5px}
+  .pod-move{margin-top:6px;font-size:12px;font-weight:800}
+  .pod-move.up{color:var(--green-deep)} .pod-move.dn{color:var(--red)} .pod-move.hold{color:var(--ink3)}
+  .pod-prize{margin-top:15px;display:inline-block;font-size:15px;font-weight:800;padding:8px 17px;border-radius:999px}
+  .pod-prize.gold{background:#fff6df;color:#a87900;border:1px solid #f0dca0}
+  .pod-prize.silver{background:#f2f4f7;color:#566070;border:1px solid #dfe3e9}
+  .pod-prize.bronze{background:#f8efe5;color:#90531f;border:1px solid #e8d2bb}
+
+  /* body split */
+  .lb-body{display:flex;gap:16px;align-items:flex-start}
+  .lb-main{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:16px}
+  .lb-side{flex:0 0 340px;width:340px;display:flex;flex-direction:column;gap:16px}
+
+  /* full standings list */
+  .lb-list{padding:0;overflow:hidden}
+  .lb-list-title{display:flex;align-items:center;gap:8px;padding:17px 20px 0;font-size:15px;font-weight:800;color:var(--ink)}
+  .lb-list-title .live{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--ink3)}
+  .lb-list-title .live .d{width:6px;height:6px;border-radius:99px;background:var(--green);display:inline-block;animation:blink 1.4s infinite}
+  .lb-head,.lb-row{display:grid;grid-template-columns:58px 1fr 156px 80px;align-items:center;gap:12px}
+  .lb-head{padding:14px 20px 12px}
+  .lb-head span{font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--ink3);text-transform:uppercase}
+  .lb-head .h-tr{text-align:right}
+  .lb-row{padding:12px 20px;border-top:1px solid var(--hairline)}
+  .lb-row:hover{background:#fcfbf8}
+  .lb-rank{font-size:14px;font-weight:800;color:var(--ink2);width:34px;height:34px;border-radius:999px;background:var(--soft);display:flex;align-items:center;justify-content:center}
+  .lb-player{display:flex;align-items:center;gap:11px;min-width:0}
+  .lb-av{width:32px;height:32px;border-radius:999px;flex:none;background:linear-gradient(135deg,var(--g1),var(--g2))}
+  .lb-addr{font-size:14px;font-weight:700;color:var(--ink);letter-spacing:.2px}
+  .you-tag{font-size:10px;font-weight:800;color:#fff;background:var(--brand);padding:2px 7px;border-radius:999px;margin-left:9px;letter-spacing:.4px;vertical-align:middle}
+  .lb-ent b{font-size:15px;font-weight:800;color:var(--ink)}
+  .lb-ent .u{font-size:11px;font-weight:600;color:var(--ink3);margin-left:4px}
+  .lb-entbar{height:4px;border-radius:99px;background:#eceae4;margin-top:6px;overflow:hidden;max-width:128px}
+  .lb-entbar>span{display:block;height:100%;background:var(--green);border-radius:99px}
+  .lb-tr{font-size:12px;font-weight:800;text-align:right}
+  .lb-tr.up{color:var(--green-deep)} .lb-tr.dn{color:var(--red)} .lb-tr.eq{color:var(--ink3)}
+  .lb-gap{display:flex;align-items:center;justify-content:center;padding:9px 0;color:var(--ink3);font-size:13px;letter-spacing:5px;border-top:1px solid var(--hairline)}
+  .lb-row.you{background:rgba(255,59,71,.05)}
+  .lb-row.you .lb-rank{background:var(--brand);color:#fff}
+  .lb-row.you .lb-entbar>span{background:var(--brand)}
+
+  /* side: prize pool */
+  .lb-pool-total{font-size:27px;font-weight:800;color:var(--ink);letter-spacing:-.5px;margin-bottom:14px}
+  .lb-pool-total small{font-size:14px;font-weight:700;color:var(--ink3);margin-left:4px}
+  .pr{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--hairline)}
+  .pr:last-child{border-bottom:0}
+  .pr-medal{display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:999px;font-size:13px;font-weight:800;flex:none}
+  .pr-medal.gold{background:linear-gradient(140deg,#fde79a,#f3b100);color:#6b4e00}
+  .pr-medal.silver{background:linear-gradient(140deg,#eef1f5,#b9bfc9);color:#4a525e}
+  .pr-medal.bronze{background:linear-gradient(140deg,#eccaa6,#c07f49);color:#5a3415}
+  .pr-lab{flex:1;font-size:14px;font-weight:600;color:var(--ink2)}
+  .pr-val{font-size:15px;font-weight:800;color:var(--ink)}
+  .lb-note{font-size:11px;color:var(--ink3);margin-top:13px;line-height:1.5}
+
+  /* side: your rank */
+  .you-main{display:flex;align-items:center;gap:14px;margin-bottom:15px}
+  .you-rank{font-size:30px;font-weight:800;color:var(--ink);letter-spacing:-1px}
+  .you-meta{display:flex;flex-direction:column;gap:4px}
+  .you-ent{font-size:14px;font-weight:700;color:var(--ink)}
+  .you-q{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:800;color:var(--green-deep)}
+  .you-prog-bar{height:7px;border-radius:99px;background:#eceae4;overflow:hidden}
+  .you-prog-bar>span{display:block;height:100%;background:linear-gradient(90deg,#22c55e,#16a34a);border-radius:99px}
+  .you-prog-lab{font-size:12px;color:var(--ink2);font-weight:600;margin-top:9px}
+  .you-prog-lab b{color:var(--ink);font-weight:800}
+  .you-cut{font-size:12px;color:var(--ink3);margin-top:13px;padding-top:13px;border-top:1px solid var(--hairline)}
+  .you-cut b{color:var(--ink2);font-weight:800}
+  .you-cta{display:block;text-align:center;margin-top:15px;background:var(--green);color:var(--green-ink);text-decoration:none;font-weight:800;font-size:14px;padding:13px 0;border-radius:999px;transition:filter .15s}
+  .you-cta:hover{filter:brightness(1.05)}
+
+  /* side: how it works */
+  .rule-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+  .rule-list li{position:relative;padding-left:18px;font-size:13px;line-height:1.55;color:var(--ink2)}
+  .rule-list li::before{content:"";position:absolute;left:0;top:6px;width:7px;height:7px;border-radius:2px;background:var(--green)}
+  .rule-list b{color:var(--ink);font-weight:800}
+
+  /* ----- footer ----- */
+  footer.app{height:60px;flex:none;display:flex;align-items:center;justify-content:flex-end;gap:6px;padding:0 32px;margin-top:auto}
+  footer.app a{width:36px;height:36px;border-radius:999px;display:flex;align-items:center;justify-content:center;color:var(--ink3);transition:.15s}
+  footer.app a:hover{background:var(--soft);color:var(--ink2)}
+
+  @media (max-width:980px){
+    .lb-body{flex-direction:column}
+    .lb-side{width:auto;flex-basis:auto}
+    .lb-hero-top{flex-direction:column}
+    .lb-cd{text-align:left;min-width:0}
+    .lb-cd .cap{justify-content:flex-start}
+  }
+  @media (max-width:680px){
+    .lb-podium{grid-template-columns:1fr;align-items:stretch}
+    .lb-stats{flex-wrap:wrap}.lb-stat{flex:1 1 50%}
+  }
+</style>
+</head>
+<body>
+<div class="frame">
+
+  <!-- ============ HEADER ============ -->
+  <header class="app">
+    <div class="brand">
+      <a class="logo" href="./">
+        <svg width="30" height="30" viewBox="0 0 22 22" fill="#ff3b47" aria-hidden="true">
+          <path d="M11 2.83 14.77 6.6 11 10.37 7.23 6.6Z"/><path d="M15.4 7.23 19.17 11 15.4 14.77 11.63 11Z"/>
+          <path d="M11 11.63 14.77 15.4 11 19.17 7.23 15.4Z"/><path d="M6.6 7.23 10.37 11 6.6 14.77 2.83 11Z"/>
+        </svg>
+        <span class="name">Cloverse</span>
+      </a>
+      <nav class="primary">
+        <a href="./">Up &amp; Down</a>
+        <a href="#">Prediction Market</a>
+        <a href="#">Lottery</a>
+        <a href="leaderboard.html" class="active">Leaderboard</a>
+      </nav>
+    </div>
+    <button class="wallet">
+      <span class="coin">
+        <svg width="14" height="14" viewBox="0 0 22 22" fill="#fff" aria-hidden="true">
+          <path d="M11 2.83 14.77 6.6 11 10.37 7.23 6.6Z"/><path d="M15.4 7.23 19.17 11 15.4 14.77 11.63 11Z"/>
+          <path d="M11 11.63 14.77 15.4 11 19.17 7.23 15.4Z"/><path d="M6.6 7.23 10.37 11 6.6 14.77 2.83 11Z"/>
+        </svg>
+      </span>
+      <span class="bal">1,250 CHZ</span>
+      <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+  </header>
+
+  <!-- ============ MAIN ============ -->
+  <main class="lb">
+
+    <!-- ---- HERO ---- -->
+    <section class="lb-hero card card-lg">
+      <div class="lb-hero-top">
+        <div>
+          <span class="lb-badge">🍀 LAUNCH EVENT</span>
+          <h1 class="title">Up &amp; Down Leaderboard</h1>
+          <p class="subtitle">Most rounds played wins. A 2-week launch sprint ranked purely by how many UP/DOWN entries you make — win or lose, every round counts toward your rank.</p>
+        </div>
+        <div class="lb-cd">
+          <span class="cap"><span class="dot"></span>EVENT ENDS IN</span>
+          <div class="lb-cd-time" id="cd">9d 14h 22m 05s</div>
+          <div class="lb-cd-sub">Started Jun 9 · Ends Jun 23</div>
+        </div>
+      </div>
+
+      <div class="lb-stats">
+        <div class="lb-stat"><div class="ls-v">3,000<span class="coinmark">CHZ</span></div><div class="ls-k">Total prize</div></div>
+        <div class="lb-stat"><div class="ls-v">1,284</div><div class="ls-k">Players</div></div>
+        <div class="lb-stat"><div class="ls-v">61,920</div><div class="ls-k">Total entries</div></div>
+        <div class="lb-stat"><div class="ls-v">10</div><div class="ls-k">Min rounds to qualify</div></div>
+      </div>
+
+      <div class="lb-progress">
+        <span class="pl">Day 5 of 14</span>
+        <div class="lb-bar"><span style="width:36%"></span></div>
+        <span class="pl r">36% elapsed</span>
+      </div>
+    </section>
+
+    <!-- ---- PODIUM (top 3) ---- -->
+    <section class="lb-podium">
+      <!-- 2nd -->
+      <div class="pod">
+        <div class="pod-ranklab silver">2ND</div>
+        <div class="pod-medal silver">2</div>
+        <div class="pod-addr">0x4b8d…1f07</div>
+        <div class="pod-entries"><b>792</b>entries</div>
+        <div class="pod-move up">▲ 1 today</div>
+        <div class="pod-prize silver">900 CHZ</div>
+      </div>
+      <!-- 1st -->
+      <div class="pod first">
+        <svg class="pod-crown" width="32" height="24" viewBox="0 0 24 18" fill="#f3b100" aria-hidden="true"><path d="M1 5l4.5 3.2L12 0l6.5 8.2L23 5l-2.4 11.5H3.4L1 5z"/></svg>
+        <div class="pod-ranklab gold">1ST · CHAMPION</div>
+        <div class="pod-medal gold">1</div>
+        <div class="pod-addr">0x7a3f…9c2e</div>
+        <div class="pod-entries"><b>847</b>entries</div>
+        <div class="pod-move hold">— held #1</div>
+        <div class="pod-prize gold">1,500 CHZ</div>
+      </div>
+      <!-- 3rd -->
+      <div class="pod">
+        <div class="pod-ranklab bronze">3RD</div>
+        <div class="pod-medal bronze">3</div>
+        <div class="pod-addr">0xc019…a4d2</div>
+        <div class="pod-entries"><b>738</b>entries</div>
+        <div class="pod-move dn">▼ 1 today</div>
+        <div class="pod-prize bronze">600 CHZ</div>
+      </div>
+    </section>
+
+    <!-- ---- BODY : standings + side ---- -->
+    <div class="lb-body">
+
+      <!-- standings -->
+      <section class="lb-main">
+        <div class="card lb-list">
+          <div class="lb-list-title">Full standings <span class="live"><span class="d"></span>updated live</span></div>
+          <div class="lb-head">
+            <span>Rank</span><span>Player</span><span>Entries</span><span class="h-tr">24h</span>
+          </div>
+
+          <div class="lb-row">
+            <div class="lb-rank">4</div>
+            <div class="lb-player"><span class="lb-av" style="--g1:#ff9a8b;--g2:#ff6a88"></span><span class="lb-addr">0x9e22…77b1</span></div>
+            <div class="lb-ent"><b>691</b><span class="u">CHZ rounds</span><div class="lb-entbar"><span style="width:82%"></span></div></div>
+            <div class="lb-tr up">▲ 2</div>
+          </div>
+          <div class="lb-row">
+            <div class="lb-rank">5</div>
+            <div class="lb-player"><span class="lb-av" style="--g1:#6a85f1;--g2:#5f72e4"></span><span class="lb-addr">0x1d5c…0e3a</span></div>
+            <div class="lb-ent"><b>654</b><span class="u">CHZ rounds</span><div class="lb-entbar"><span style="width:77%"></span></div></div>
+            <div class="lb-tr dn">▼ 1</div>
+          </div>
+          <div class="lb-row">
+            <div class="lb-rank">6</div>
+            <div class="lb-player"><span class="lb-av" style="--g1:#f6d365;--g2:#fda085"></span><span class="lb-addr">0xf7a0…b9c4</span></div>
+            <div class="lb-ent"><b>612</b><span class="u">CHZ rounds</span><div class="lb-entbar"><span style="width:72%"></span></div></div>
+            <div class="lb-tr up">▲ 3</div>
+          </div>
+          <div class="lb-row">
+            <div class="lb-rank">7</div>
+            <div class="lb-player"><span class="lb-av" style="--g1:#84fab0;--g2:#22c55e"></span><span class="lb-addr">0x882e…3d10</span></div>
+            <div class="lb-ent"><b>588</b><span class="u">CHZ rounds</span><div class="lb-entbar"><span style="width:69%"></span></div></div>
+            <div class="lb-tr eq">— 0</div>
+          </div>
+          <div class="lb-row">
+            <div class="lb-rank">8</div>
+            <div class="lb-player"><span class="lb-av" style="--g1:#a18cd1;--g2:#7b5fe0"></span><span class="lb-addr">0x35b1…cc9f</span></div>
+            <div class="lb-ent"><b>559</b><span class="u">CHZ rounds</span><div class="lb-entbar"><span style="width:66%"></span></div></div>
+            <div class="lb-tr up">▲ 1</div>
+          </div>
+          <div class="lb-row">
+            <div class="lb-rank">9</div>
+            <div class="lb-player"><span class="lb-av" style="--g1:#f093fb;--g2:#e85bd0"></span><span class="lb-addr">0x6af4…21e8</span></div>
+            <div class="lb-ent"><b>531</b><span class="u">CHZ rounds</span><div class="lb-entbar"><span style="width:63%"></span></div></div>
+            <div class="lb-tr dn">▼ 2</div>
+          </div>
+          <div class="lb-row">
+            <div class="lb-rank">10</div>
+            <div class="lb-player"><span class="lb-av" style="--g1:#4facfe;--g2:#2f8ce8"></span><span class="lb-addr">0x0c7d…8a55</span></div>
+            <div class="lb-ent"><b>508</b><span class="u">CHZ rounds</span><div class="lb-entbar"><span style="width:60%"></span></div></div>
+            <div class="lb-tr up">▲ 4</div>
+          </div>
+          <div class="lb-row">
+            <div class="lb-rank">11</div>
+            <div class="lb-player"><span class="lb-av" style="--g1:#43e97b;--g2:#16a34a"></span><span class="lb-addr">0xab19…4402</span></div>
+            <div class="lb-ent"><b>487</b><span class="u">CHZ rounds</span><div class="lb-entbar"><span style="width:57%"></span></div></div>
+            <div class="lb-tr eq">— 0</div>
+          </div>
+          <div class="lb-row">
+            <div class="lb-rank">12</div>
+            <div class="lb-player"><span class="lb-av" style="--g1:#fa9a64;--g2:#f5731f"></span><span class="lb-addr">0xd3e6…7f1b</span></div>
+            <div class="lb-ent"><b>463</b><span class="u">CHZ rounds</span><div class="lb-entbar"><span style="width:55%"></span></div></div>
+            <div class="lb-tr dn">▼ 1</div>
+          </div>
+
+          <!-- context gap to your neighbourhood -->
+          <div class="lb-gap">· · ·</div>
+
+          <div class="lb-row">
+            <div class="lb-rank">23</div>
+            <div class="lb-player"><span class="lb-av" style="--g1:#b8c6db;--g2:#9aa7bd"></span><span class="lb-addr">0x5e91…0ab2</span></div>
+            <div class="lb-ent"><b>256</b><span class="u">CHZ rounds</span><div class="lb-entbar"><span style="width:30%"></span></div></div>
+            <div class="lb-tr up">▲ 1</div>
+          </div>
+          <div class="lb-row you">
+            <div class="lb-rank">24</div>
+            <div class="lb-player"><span class="lb-av" style="--g1:#ff4d8d;--g2:#e62934"></span><span class="lb-addr">0x3c7f…9d41</span><span class="you-tag">YOU</span></div>
+            <div class="lb-ent"><b>247</b><span class="u">CHZ rounds</span><div class="lb-entbar"><span style="width:29%"></span></div></div>
+            <div class="lb-tr up">▲ 3</div>
+          </div>
+          <div class="lb-row">
+            <div class="lb-rank">25</div>
+            <div class="lb-player"><span class="lb-av" style="--g1:#c2a3ff;--g2:#9b6bff"></span><span class="lb-addr">0x77a2…b6e0</span></div>
+            <div class="lb-ent"><b>239</b><span class="u">CHZ rounds</span><div class="lb-entbar"><span style="width:28%"></span></div></div>
+            <div class="lb-tr dn">▼ 2</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- side rail -->
+      <aside class="lb-side">
+
+        <!-- prize pool -->
+        <div class="card card-pad">
+          <div class="side-h">Prize pool</div>
+          <div class="lb-pool-total">3,000 CHZ<small>total</small></div>
+          <div class="lb-prize-rows">
+            <div class="pr"><span class="pr-medal gold">1</span><span class="pr-lab">1st place</span><span class="pr-val">1,500 CHZ</span></div>
+            <div class="pr"><span class="pr-medal silver">2</span><span class="pr-lab">2nd place</span><span class="pr-val">900 CHZ</span></div>
+            <div class="pr"><span class="pr-medal bronze">3</span><span class="pr-lab">3rd place</span><span class="pr-val">600 CHZ</span></div>
+          </div>
+          <div class="lb-note">Paid in CHZ directly to the winning wallets on-chain after the event ends. One prize per wallet.</div>
+        </div>
+
+        <!-- your rank -->
+        <div class="card card-pad">
+          <div class="side-h">Your rank</div>
+          <div class="you-main">
+            <div class="you-rank">#24</div>
+            <div class="you-meta">
+              <div class="you-ent">247 entries</div>
+              <div class="you-q">✓ Qualified · 10+ rounds</div>
+            </div>
+          </div>
+          <div class="you-prog-bar"><span style="width:96%"></span></div>
+          <div class="you-prog-lab"><b>9</b> more entries to pass #23</div>
+          <div class="you-cut">Prize zone · top 3 currently needs <b>738+</b> entries</div>
+          <a class="you-cta" href="./">Play next round →</a>
+        </div>
+
+        <!-- how it works -->
+        <div class="card card-pad">
+          <div class="side-h">How it works</div>
+          <ul class="rule-list">
+            <li>Ranked by total <b>UP/DOWN entries</b> — win or lose, amount doesn't matter. More rounds = higher rank.</li>
+            <li>Play at least <b>10 rounds</b> to qualify. No upper limit.</li>
+            <li>Top 3 wallets share the <b>3,000 CHZ</b> pool (1,500 / 900 / 600).</li>
+            <li><b>One prize per wallet.</b> Multi-accounting or manipulation is disqualified.</li>
+            <li>Final standings are settled from <b>on-chain data</b> when the event ends.</li>
+          </ul>
+        </div>
+
+      </aside>
+    </div>
+
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="app">
+    <a href="#" aria-label="X / Twitter"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M17.53 3h3.02l-6.6 7.54L21.75 21h-6.07l-4.76-6.22L5.48 21H2.46l7.06-8.07L2.25 3h6.22l4.3 5.69L17.53 3Zm-1.06 16.18h1.67L7.6 4.73H5.8l10.67 14.45Z"/></svg></a>
+    <a href="#" aria-label="Telegram"><svg viewBox="0 0 24 24" width="19" height="19" fill="currentColor"><path d="M21.94 4.6 18.6 20.3c-.25 1.1-.9 1.38-1.83.86l-5.06-3.73-2.44 2.35c-.27.27-.5.5-1.02.5l.36-5.16 9.4-8.5c.4-.36-.09-.57-.63-.2L4.16 13.1l-5-1.56c-1.08-.34-1.1-1.08.23-1.6l19.55-7.53c.9-.34 1.7.2 1.4 2.18Z"/></svg></a>
+    <a href="#" aria-label="Whitepaper"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-6-6Z"/><path d="M14 3v6h6M8 13h8M8 17h6"/></svg></a>
+  </footer>
+
+</div>
+
+<script>
+/* live event countdown — fixed offset so the demo always reads ~9d14h */
+(function(){
+  var end = Date.now() + (9*86400 + 14*3600 + 22*60 + 5)*1000;
+  var el = document.getElementById('cd');
+  function tick(){
+    var s = Math.max(0, Math.floor((end - Date.now())/1000));
+    var d = Math.floor(s/86400); s -= d*86400;
+    var h = Math.floor(s/3600); s -= h*3600;
+    var m = Math.floor(s/60); s -= m*60;
+    el.textContent = d+'d '+h+'h '+m+'m '+String(s).padStart(2,'0')+'s';
+  }
+  tick(); setInterval(tick,1000);
+})();
+</script>
+</body>
+</html>
