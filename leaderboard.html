@@ -50,7 +50,7 @@
     font-size:11px;font-weight:700;letter-spacing:.8px;padding:5px 11px;border-radius:999px}
   h1.title{margin:13px 0 0;font-size:30px;font-weight:800;letter-spacing:-.6px;color:var(--ink)}
   .lb-tag{margin:9px 0 0;font-size:14px;color:var(--ink2)}
-  .lb-meta{display:flex;align-items:center;gap:9px;margin-top:16px;font-size:13px;color:var(--ink2)}
+  .lb-meta{display:flex;align-items:center;flex-wrap:wrap;gap:6px 9px;margin-top:16px;font-size:13px;color:var(--ink2)}
   .lb-meta b{color:var(--ink);font-weight:700}
   .lb-meta .sep{color:var(--ink3)}
 
@@ -85,12 +85,6 @@
   .lb-rank.g3{background:linear-gradient(140deg,#eccaa6,#c07f49);color:#5a3415}
   .lb-addr{font-family:var(--mono);font-size:13.5px;font-weight:600;color:var(--ink);letter-spacing:.2px}
   .lb-ent{text-align:right;font-size:15px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
-
-  /* rules */
-  .lb-rules{display:flex;flex-wrap:wrap;gap:8px 28px;margin:0;padding:0 4px}
-  .lb-rules li{list-style:none;position:relative;padding-left:16px;font-size:12.5px;color:var(--ink2)}
-  .lb-rules li::before{content:"";position:absolute;left:0;top:6px;width:6px;height:6px;border-radius:2px;background:var(--green)}
-  .lb-rules b{color:var(--ink);font-weight:700}
 
   /* footer */
   footer.app{height:60px;flex:none;display:flex;align-items:center;justify-content:flex-end;gap:6px;padding:0 32px;margin-top:auto}
@@ -141,11 +135,12 @@
     <section>
       <span class="lb-badge">LAUNCH EVENT</span>
       <h1 class="title">Up &amp; Down Leaderboard</h1>
-      <p class="lb-tag">Ranked by how many UP/DOWN rounds you play.</p>
+      <p class="lb-tag">Ranked by how many UP/DOWN rounds you play. Win or lose, every round counts.</p>
       <div class="lb-meta">
         <span><b>3,000 CHZ</b> pool</span><span class="sep">·</span>
-        <span><b>1,284</b> players</span><span class="sep">·</span>
-        <span>Ends in <b id="cd">9d 14h 21m</b></span>
+        <span>Top 3 win <b>1,500 / 900 / 600</b></span><span class="sep">·</span>
+        <span><b>10+ rounds</b> to qualify</span><span class="sep">·</span>
+        <span>Ends in <b id="cd">9d 14h 20m</b></span>
       </div>
     </section>
 
@@ -177,11 +172,6 @@
       <div class="lb-row"><div class="lb-rank">14</div><div class="lb-addr">0x9d41…0c72</div><div class="lb-ent">421</div></div>
       <div class="lb-row"><div class="lb-rank">15</div><div class="lb-addr">0x71be…33d5</div><div class="lb-ent">405</div></div>
     </div>
-
-    <ul class="lb-rules">
-      <li>Top 3 share <b>1,500 / 900 / 600 CHZ</b></li>
-      <li>Play <b>10+ rounds</b> to qualify</li>
-    </ul>
 
   </main>
 
