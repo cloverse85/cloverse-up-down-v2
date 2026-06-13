@@ -8,16 +8,16 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 <style>
-  /* ----- design tokens (light — matches live cloverse.org) ----- */
   :root{
     --cream:#f4f1eb; --white:#ffffff;
     --ink:#15161a; --ink2:#6b7280; --ink3:#9aa0a8;
     --hairline:#eceae4; --soft:#f6f4ef;
     --green:#22c55e; --green-deep:#16a34a; --green-ink:#04230f;
     --red:#ef4444; --brand:#ff3b47;
-    --radius-card:24px; --radius-card-sm:20px; --radius-md:10px;
+    --radius-card-sm:20px;
     --shadow:0 1px 2px rgba(17,17,20,.04), 0 10px 30px rgba(17,17,20,.05);
     --font:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
   }
   *,*::before,*::after{box-sizing:border-box}
   html,body{margin:0}
@@ -25,7 +25,7 @@
     -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
   .frame{max-width:1440px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
 
-  /* ----- header (full-width, like live) ----- */
+  /* header */
   header.app{height:88px;flex:none;display:flex;align-items:center;justify-content:space-between;
     padding:0 32px;background:var(--white);border-bottom:1px solid var(--hairline)}
   .brand{display:flex;align-items:center;gap:48px}
@@ -43,83 +43,65 @@
   .wallet .bal{font-size:15px;font-weight:600;color:var(--ink)}
   .chev{color:var(--ink3)}
 
-  /* ===== LEADERBOARD — focused single column ===== */
-  main.lb{width:100%;max-width:880px;margin:0 auto;padding:26px 32px 40px;display:flex;flex-direction:column;gap:18px}
+  /* leaderboard */
+  main.lb{width:100%;max-width:800px;margin:0 auto;padding:30px 32px 44px;display:flex;flex-direction:column;gap:20px}
 
-  /* event header */
-  .lb-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,59,71,.08);color:var(--brand);
-    font-size:11px;font-weight:800;letter-spacing:.6px;padding:5px 11px;border-radius:999px}
-  h1.title{margin:11px 0 0;font-size:30px;font-weight:800;letter-spacing:-.6px;color:var(--ink)}
-  .lb-tag{margin:8px 0 0;font-size:14px;color:var(--ink2)}
-  .lb-meta{display:flex;align-items:center;gap:10px;margin-top:15px;font-size:13px;flex-wrap:wrap}
-  .lb-meta .m{color:var(--ink2);font-weight:600}
-  .lb-meta .m b{color:var(--ink);font-weight:800}
+  .lb-badge{display:inline-block;background:rgba(255,59,71,.08);color:var(--brand);
+    font-size:11px;font-weight:700;letter-spacing:.8px;padding:5px 11px;border-radius:999px}
+  h1.title{margin:13px 0 0;font-size:30px;font-weight:800;letter-spacing:-.6px;color:var(--ink)}
+  .lb-tag{margin:9px 0 0;font-size:14px;color:var(--ink2)}
+  .lb-meta{display:flex;align-items:center;gap:9px;margin-top:16px;font-size:13px;color:var(--ink2)}
+  .lb-meta b{color:var(--ink);font-weight:700}
   .lb-meta .sep{color:var(--ink3)}
-  .lb-meta .ends{display:inline-flex;align-items:center;gap:6px;color:var(--ink2);font-weight:600}
-  .lb-meta .ends b{color:var(--ink);font-weight:800;font-variant-numeric:tabular-nums}
-  .lb-meta .dot{width:7px;height:7px;border-radius:99px;background:var(--red);display:inline-block;animation:blink 1.4s infinite}
-  @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
-  /* your standing — slim strip */
-  .lb-you-strip{display:flex;align-items:center;justify-content:space-between;gap:14px;
-    background:rgba(255,59,71,.05);border:1px solid #f6d9da;border-radius:14px;padding:12px 8px 12px 16px}
-  .lb-you-l{font-size:14px;color:var(--ink2);font-weight:600}
-  .lb-you-l b{color:var(--ink);font-weight:800}
+  /* your standing */
+  .lb-you{display:flex;align-items:center;justify-content:space-between;gap:14px;
+    background:var(--soft);border:1px solid var(--hairline);border-radius:14px;padding:13px 9px 13px 18px}
+  .lb-you-l{font-size:14px;color:var(--ink2)}
+  .lb-you-l b{color:var(--ink);font-weight:700}
   .lb-you-l .rk{color:var(--brand);font-weight:800}
-  .lb-you-cta{flex:none;background:var(--green);color:var(--green-ink);text-decoration:none;font-weight:800;
+  .lb-you-l .sep{color:var(--ink3);margin:0 4px}
+  .lb-you-cta{flex:none;background:var(--green);color:var(--green-ink);text-decoration:none;font-weight:700;
     font-size:13px;padding:9px 16px;border-radius:999px;transition:filter .15s}
-  .lb-you-cta:hover{filter:brightness(1.05)}
+  .lb-you-cta:hover{filter:brightness(1.04)}
 
-  /* leaderboard table */
+  /* table */
   .lb-card{background:var(--white);border:1px solid var(--hairline);border-radius:var(--radius-card-sm);box-shadow:var(--shadow);overflow:hidden}
-  .lb-h,.lb-row{display:grid;grid-template-columns:54px 1fr 96px 104px;align-items:center;gap:12px;padding:13px 20px}
-  .lb-h{padding-top:15px;padding-bottom:13px}
-  .lb-h span{font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--ink3);text-transform:uppercase}
+  .lb-h,.lb-row{display:grid;grid-template-columns:56px 1fr auto;align-items:center;gap:16px;padding:14px 22px}
+  .lb-h{padding:16px 22px 13px}
+  .lb-h span{font-size:11px;font-weight:600;letter-spacing:.6px;color:var(--ink3);text-transform:uppercase}
   .lb-h .r{text-align:right}
   .lb-row{border-top:1px solid var(--hairline)}
   .lb-row:hover{background:#fcfbf8}
-  .lb-row.r1{background:linear-gradient(90deg,rgba(243,177,0,.07),rgba(243,177,0,0) 60%)}
-  .lb-rank{font-size:14px;font-weight:800;color:var(--ink3);text-align:center}
-  .lb-rank.m{width:30px;height:30px;border-radius:999px;margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:13px}
+  .lb-rank{font-size:14px;font-weight:700;color:var(--ink3);text-align:center}
+  .lb-rank.m{width:30px;height:30px;border-radius:999px;margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800}
   .lb-rank.g1{background:linear-gradient(140deg,#fde79a,#f3b100);color:#6b4e00}
   .lb-rank.g2{background:linear-gradient(140deg,#eef1f5,#b9bfc9);color:#4a525e}
   .lb-rank.g3{background:linear-gradient(140deg,#eccaa6,#c07f49);color:#5a3415}
-  .lb-player{display:flex;align-items:center;gap:11px;min-width:0}
-  .lb-av{width:30px;height:30px;border-radius:999px;flex:none;background:linear-gradient(135deg,var(--g1),var(--g2))}
-  .lb-addr{font-size:14px;font-weight:700;color:var(--ink);letter-spacing:.2px}
-  .you-tag{font-size:10px;font-weight:800;color:#fff;background:var(--brand);padding:2px 7px;border-radius:999px;margin-left:9px;letter-spacing:.4px;vertical-align:middle}
-  .lb-ent{text-align:right;font-size:15px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums}
-  .lb-prize{text-align:right}
-  .lb-prize span{font-size:12px;font-weight:800;padding:5px 11px;border-radius:999px;white-space:nowrap}
-  .lb-prize .g1{background:#fff6df;color:#a87900;border:1px solid #f0dca0}
-  .lb-prize .g2{background:#f2f4f7;color:#566070;border:1px solid #dfe3e9}
-  .lb-prize .g3{background:#f8efe5;color:#90531f;border:1px solid #e8d2bb}
-  .lb-gap{text-align:center;padding:8px 0;color:var(--ink3);font-size:13px;letter-spacing:5px;border-top:1px solid var(--hairline)}
-  .lb-row.you{background:rgba(255,59,71,.05)}
-  .lb-row.you .lb-rank{color:var(--brand)}
+  .lb-addr{font-family:var(--mono);font-size:13.5px;font-weight:600;color:var(--ink);letter-spacing:.2px}
+  .lb-ent{text-align:right;font-size:15px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
 
-  /* compact rules */
-  .lb-rules{display:flex;flex-wrap:wrap;gap:8px 26px;padding:2px 4px}
-  .lb-rules li{list-style:none;position:relative;padding-left:16px;font-size:12.5px;color:var(--ink2);line-height:1.5}
+  /* rules */
+  .lb-rules{display:flex;flex-wrap:wrap;gap:8px 28px;margin:0;padding:0 4px}
+  .lb-rules li{list-style:none;position:relative;padding-left:16px;font-size:12.5px;color:var(--ink2)}
   .lb-rules li::before{content:"";position:absolute;left:0;top:6px;width:6px;height:6px;border-radius:2px;background:var(--green)}
-  .lb-rules b{color:var(--ink);font-weight:800}
+  .lb-rules b{color:var(--ink);font-weight:700}
 
-  /* ----- footer ----- */
+  /* footer */
   footer.app{height:60px;flex:none;display:flex;align-items:center;justify-content:flex-end;gap:6px;padding:0 32px;margin-top:auto}
   footer.app a{width:36px;height:36px;border-radius:999px;display:flex;align-items:center;justify-content:center;color:var(--ink3);transition:.15s}
   footer.app a:hover{background:var(--soft);color:var(--ink2)}
 
-  @media (max-width:600px){
-    .lb-h,.lb-row{grid-template-columns:40px 1fr auto}
-    .lb-prize{display:none}.lb-h .pz{display:none}
-    .lb-you-strip{flex-direction:column;align-items:flex-start}
+  @media (max-width:560px){
+    .lb-you{flex-direction:column;align-items:flex-start}
+    .lb-meta{flex-wrap:wrap}
   }
 </style>
 </head>
 <body>
 <div class="frame">
 
-  <!-- ============ HEADER ============ -->
+  <!-- header -->
   <header class="app">
     <div class="brand">
       <a class="logo" href="./">
@@ -148,135 +130,53 @@
     </button>
   </header>
 
-  <!-- ============ MAIN ============ -->
+  <!-- main -->
   <main class="lb">
 
-    <!-- event header -->
     <section>
-      <span class="lb-badge">🍀 LAUNCH EVENT</span>
+      <span class="lb-badge">LAUNCH EVENT</span>
       <h1 class="title">Up &amp; Down Leaderboard</h1>
-      <p class="lb-tag">Most rounds played wins — ranked by your UP/DOWN entry count, win or lose.</p>
+      <p class="lb-tag">Ranked by how many UP/DOWN rounds you play.</p>
       <div class="lb-meta">
-        <span class="m"><b>3,000 CHZ</b> prize</span><span class="sep">·</span>
-        <span class="m"><b>1,284</b> players</span><span class="sep">·</span>
-        <span class="m">min <b>10</b> rounds</span><span class="sep">·</span>
-        <span class="ends"><span class="dot"></span>Ends in <b id="cd">9d 14h 22m</b></span>
+        <span><b>3,000 CHZ</b> pool</span><span class="sep">·</span>
+        <span><b>1,284</b> players</span><span class="sep">·</span>
+        <span>Ends in <b id="cd">9d 14h 21m</b></span>
       </div>
     </section>
 
-    <!-- your standing -->
-    <div class="lb-you-strip">
-      <span class="lb-you-l">Your rank <span class="rk">#24</span> · <b>247</b> entries · <b>158</b> more to reach the Top 15</span>
+    <div class="lb-you">
+      <span class="lb-you-l">Your rank <span class="rk">#24</span><span class="sep">·</span><b>247</b> entries<span class="sep">·</span><b>158</b> to reach the Top 15</span>
       <a class="lb-you-cta" href="./">Play next round →</a>
     </div>
 
-    <!-- table -->
     <div class="lb-card">
-      <div class="lb-h"><span>Rank</span><span>Player</span><span class="r">Entries</span><span class="r pz">Prize</span></div>
+      <div class="lb-h"><span>Rank</span><span>Player</span><span class="r">Entries</span></div>
 
-      <div class="lb-row r1">
-        <div class="lb-rank m g1">1</div>
-        <div class="lb-player"><span class="lb-av" style="--g1:#ffd27a;--g2:#f3a200"></span><span class="lb-addr">0x7a3f…9c2e</span></div>
-        <div class="lb-ent">847</div>
-        <div class="lb-prize"><span class="g1">1,500 CHZ</span></div>
-      </div>
-      <div class="lb-row">
-        <div class="lb-rank m g2">2</div>
-        <div class="lb-player"><span class="lb-av" style="--g1:#cfd6e0;--g2:#9aa7bd"></span><span class="lb-addr">0x4b8d…1f07</span></div>
-        <div class="lb-ent">792</div>
-        <div class="lb-prize"><span class="g2">900 CHZ</span></div>
-      </div>
-      <div class="lb-row">
-        <div class="lb-rank m g3">3</div>
-        <div class="lb-player"><span class="lb-av" style="--g1:#e6c19a;--g2:#c07f49"></span><span class="lb-addr">0xc019…a4d2</span></div>
-        <div class="lb-ent">738</div>
-        <div class="lb-prize"><span class="g3">600 CHZ</span></div>
-      </div>
-      <div class="lb-row">
-        <div class="lb-rank">4</div>
-        <div class="lb-player"><span class="lb-av" style="--g1:#ff9a8b;--g2:#ff6a88"></span><span class="lb-addr">0x9e22…77b1</span></div>
-        <div class="lb-ent">691</div>
-        <div class="lb-prize"></div>
-      </div>
-      <div class="lb-row">
-        <div class="lb-rank">5</div>
-        <div class="lb-player"><span class="lb-av" style="--g1:#6a85f1;--g2:#5f72e4"></span><span class="lb-addr">0x1d5c…0e3a</span></div>
-        <div class="lb-ent">654</div>
-        <div class="lb-prize"></div>
-      </div>
-      <div class="lb-row">
-        <div class="lb-rank">6</div>
-        <div class="lb-player"><span class="lb-av" style="--g1:#f6d365;--g2:#fda085"></span><span class="lb-addr">0xf7a0…b9c4</span></div>
-        <div class="lb-ent">612</div>
-        <div class="lb-prize"></div>
-      </div>
-      <div class="lb-row">
-        <div class="lb-rank">7</div>
-        <div class="lb-player"><span class="lb-av" style="--g1:#84fab0;--g2:#22c55e"></span><span class="lb-addr">0x882e…3d10</span></div>
-        <div class="lb-ent">588</div>
-        <div class="lb-prize"></div>
-      </div>
-      <div class="lb-row">
-        <div class="lb-rank">8</div>
-        <div class="lb-player"><span class="lb-av" style="--g1:#a18cd1;--g2:#7b5fe0"></span><span class="lb-addr">0x35b1…cc9f</span></div>
-        <div class="lb-ent">559</div>
-        <div class="lb-prize"></div>
-      </div>
-
-      <div class="lb-row">
-        <div class="lb-rank">9</div>
-        <div class="lb-player"><span class="lb-av" style="--g1:#f093fb;--g2:#e85bd0"></span><span class="lb-addr">0x6af4…21e8</span></div>
-        <div class="lb-ent">531</div>
-        <div class="lb-prize"></div>
-      </div>
-      <div class="lb-row">
-        <div class="lb-rank">10</div>
-        <div class="lb-player"><span class="lb-av" style="--g1:#4facfe;--g2:#2f8ce8"></span><span class="lb-addr">0x0c7d…8a55</span></div>
-        <div class="lb-ent">508</div>
-        <div class="lb-prize"></div>
-      </div>
-      <div class="lb-row">
-        <div class="lb-rank">11</div>
-        <div class="lb-player"><span class="lb-av" style="--g1:#43e97b;--g2:#16a34a"></span><span class="lb-addr">0xab19…4402</span></div>
-        <div class="lb-ent">487</div>
-        <div class="lb-prize"></div>
-      </div>
-      <div class="lb-row">
-        <div class="lb-rank">12</div>
-        <div class="lb-player"><span class="lb-av" style="--g1:#fa9a64;--g2:#f5731f"></span><span class="lb-addr">0xd3e6…7f1b</span></div>
-        <div class="lb-ent">463</div>
-        <div class="lb-prize"></div>
-      </div>
-      <div class="lb-row">
-        <div class="lb-rank">13</div>
-        <div class="lb-player"><span class="lb-av" style="--g1:#7c9cf5;--g2:#5566e0"></span><span class="lb-addr">0x2f80…b1a9</span></div>
-        <div class="lb-ent">442</div>
-        <div class="lb-prize"></div>
-      </div>
-      <div class="lb-row">
-        <div class="lb-rank">14</div>
-        <div class="lb-player"><span class="lb-av" style="--g1:#c2a3ff;--g2:#9b6bff"></span><span class="lb-addr">0x9d41…0c72</span></div>
-        <div class="lb-ent">421</div>
-        <div class="lb-prize"></div>
-      </div>
-      <div class="lb-row">
-        <div class="lb-rank">15</div>
-        <div class="lb-player"><span class="lb-av" style="--g1:#5eead4;--g2:#14b8a6"></span><span class="lb-addr">0x71be…33d5</span></div>
-        <div class="lb-ent">405</div>
-        <div class="lb-prize"></div>
-      </div>
+      <div class="lb-row"><div class="lb-rank m g1">1</div><div class="lb-addr">0x7a3f…9c2e</div><div class="lb-ent">847</div></div>
+      <div class="lb-row"><div class="lb-rank m g2">2</div><div class="lb-addr">0x4b8d…1f07</div><div class="lb-ent">792</div></div>
+      <div class="lb-row"><div class="lb-rank m g3">3</div><div class="lb-addr">0xc019…a4d2</div><div class="lb-ent">738</div></div>
+      <div class="lb-row"><div class="lb-rank">4</div><div class="lb-addr">0x9e22…77b1</div><div class="lb-ent">691</div></div>
+      <div class="lb-row"><div class="lb-rank">5</div><div class="lb-addr">0x1d5c…0e3a</div><div class="lb-ent">654</div></div>
+      <div class="lb-row"><div class="lb-rank">6</div><div class="lb-addr">0xf7a0…b9c4</div><div class="lb-ent">612</div></div>
+      <div class="lb-row"><div class="lb-rank">7</div><div class="lb-addr">0x882e…3d10</div><div class="lb-ent">588</div></div>
+      <div class="lb-row"><div class="lb-rank">8</div><div class="lb-addr">0x35b1…cc9f</div><div class="lb-ent">559</div></div>
+      <div class="lb-row"><div class="lb-rank">9</div><div class="lb-addr">0x6af4…21e8</div><div class="lb-ent">531</div></div>
+      <div class="lb-row"><div class="lb-rank">10</div><div class="lb-addr">0x0c7d…8a55</div><div class="lb-ent">508</div></div>
+      <div class="lb-row"><div class="lb-rank">11</div><div class="lb-addr">0xab19…4402</div><div class="lb-ent">487</div></div>
+      <div class="lb-row"><div class="lb-rank">12</div><div class="lb-addr">0xd3e6…7f1b</div><div class="lb-ent">463</div></div>
+      <div class="lb-row"><div class="lb-rank">13</div><div class="lb-addr">0x2f80…b1a9</div><div class="lb-ent">442</div></div>
+      <div class="lb-row"><div class="lb-rank">14</div><div class="lb-addr">0x9d41…0c72</div><div class="lb-ent">421</div></div>
+      <div class="lb-row"><div class="lb-rank">15</div><div class="lb-addr">0x71be…33d5</div><div class="lb-ent">405</div></div>
     </div>
 
-    <!-- compact rules -->
     <ul class="lb-rules">
-      <li>Top 3 wallets split <b>1,500 / 900 / 600 CHZ</b></li>
+      <li>Top 3 share <b>1,500 / 900 / 600 CHZ</b></li>
       <li>Play <b>10+ rounds</b> to qualify</li>
-      <li><b>One prize per wallet</b>, settled on-chain at event end</li>
     </ul>
 
   </main>
 
-  <!-- ============ FOOTER ============ -->
+  <!-- footer -->
   <footer class="app">
     <a href="#" aria-label="X / Twitter"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M17.53 3h3.02l-6.6 7.54L21.75 21h-6.07l-4.76-6.22L5.48 21H2.46l7.06-8.07L2.25 3h6.22l4.3 5.69L17.53 3Zm-1.06 16.18h1.67L7.6 4.73H5.8l10.67 14.45Z"/></svg></a>
     <a href="#" aria-label="Telegram"><svg viewBox="0 0 24 24" width="19" height="19" fill="currentColor"><path d="M21.94 4.6 18.6 20.3c-.25 1.1-.9 1.38-1.83.86l-5.06-3.73-2.44 2.35c-.27.27-.5.5-1.02.5l.36-5.16 9.4-8.5c.4-.36-.09-.57-.63-.2L4.16 13.1l-5-1.56c-1.08-.34-1.1-1.08.23-1.6l19.55-7.53c.9-.34 1.7.2 1.4 2.18Z"/></svg></a>
@@ -286,9 +186,8 @@
 </div>
 
 <script>
-/* live event countdown — fixed offset so the demo always reads ~9d14h */
 (function(){
-  var end = Date.now() + (9*86400 + 14*3600 + 22*60)*1000;
+  var end = Date.now() + (9*86400 + 14*3600 + 21*60)*1000;
   var el = document.getElementById('cd');
   function tick(){
     var s = Math.max(0, Math.floor((end - Date.now())/1000));
