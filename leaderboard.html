@@ -55,14 +55,19 @@
   .lb-meta .sep{color:var(--ink3)}
 
   /* your standing */
-  .lb-you{display:flex;align-items:center;justify-content:space-between;gap:14px;
-    background:var(--soft);border:1px solid var(--hairline);border-radius:14px;padding:13px 9px 13px 18px}
-  .lb-you-l{font-size:14px;color:var(--ink2)}
-  .lb-you-l b{color:var(--ink);font-weight:700}
-  .lb-you-l .rk{color:var(--brand);font-weight:800}
-  .lb-you-l .sep{color:var(--ink3);margin:0 4px}
+  .lb-you{display:flex;align-items:center;justify-content:space-between;gap:16px;
+    background:var(--white);border:1px solid var(--hairline);border-radius:14px;
+    padding:14px 14px 14px 20px;box-shadow:inset 3px 0 0 var(--brand), var(--shadow)}
+  .lb-you-stats{display:flex;align-items:center}
+  .ys{display:flex;flex-direction:column;gap:3px;padding:1px 22px}
+  .ys:first-child{padding-left:0}
+  .ys+.ys{border-left:1px solid var(--hairline)}
+  .ys-k{font-size:10.5px;font-weight:600;letter-spacing:.5px;color:var(--ink3);text-transform:uppercase}
+  .ys-v{font-size:19px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:-.3px;line-height:1.05}
+  .ys-v small{font-size:12px;font-weight:600;color:var(--ink3);letter-spacing:0}
+  .ys-rank .ys-v{color:var(--brand)}
   .lb-you-cta{flex:none;background:var(--green);color:var(--green-ink);text-decoration:none;font-weight:700;
-    font-size:13px;padding:9px 16px;border-radius:999px;transition:filter .15s}
+    font-size:13px;padding:10px 18px;border-radius:999px;transition:filter .15s}
   .lb-you-cta:hover{filter:brightness(1.04)}
 
   /* table */
@@ -145,7 +150,11 @@
     </section>
 
     <div class="lb-you">
-      <span class="lb-you-l">Your rank <span class="rk">#24</span><span class="sep">·</span><b>247</b> entries<span class="sep">·</span><b>158</b> to reach the Top 15</span>
+      <div class="lb-you-stats">
+        <div class="ys ys-rank"><div class="ys-k">Your rank</div><div class="ys-v">#24</div></div>
+        <div class="ys"><div class="ys-k">Entries</div><div class="ys-v">247</div></div>
+        <div class="ys"><div class="ys-k">To Top 15</div><div class="ys-v">158 <small>more</small></div></div>
+      </div>
       <a class="lb-you-cta" href="./">Play next round →</a>
     </div>
 
